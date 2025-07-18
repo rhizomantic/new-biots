@@ -63,14 +63,14 @@ cf = {
                     every: 4,
                     pos: {a:{src:'rnd', mn:-PI, mx:PI}, r:{src:'rnd', mx:skw*0.15}},
                     life: 800,
-                    rad: {src:'t', cv:'cos', pw:0.3, mn:0, mx:12},
+                    rad: {src:'t', cv:'cos', pw:0.3, mn:0, mx:20},
                     size: 1,
-                    col: {src:'t', cs:['#FFCC00','#00FFCC']},
+                    col: {src:'t', cs:[front[0], front[front.length-1]]},
                     damp: 0.92,
-                    wrap: true,
+                    wrap: false,
                     forces:[
                         {ty:'grid'},
-                        {ty:'noisewind', f:0.3, vv:0, iv:0.1, tv:0.01, cn:1.2}
+                        {ty:'noisewind', f:0.3, vv:0, iv:0.03, tv:0.01, cn:1.2}
 
                     ]
                 }

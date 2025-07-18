@@ -5,10 +5,10 @@ var t, go, capture;
 var grid, cols, rows, margin;
 var dots, dotCount;
 
-const back = [32,32,32];
-const front = [255,255,255];
+var back = [32,32,32];
+var front = [[255,255,255]];
 const gap = 60;
-const skw = 800, skh = 800;
+const skw = 1080, skh = 1080;
 
 var vid, startVid, stopVid, recording;
 const vid_len = 1200;
@@ -19,7 +19,7 @@ function setup() {
 
     params = getURLParams();
 
-    sc = 2;
+    sc = 1;
     // cell = gap*2;
     margin = 200;
     cols = int((skw+margin*2)/gap)+1;
@@ -27,6 +27,7 @@ function setup() {
 
     startVid = stopVid = recording = false;
 
+    col_generate();
     generate();
     reset();
 }
@@ -36,7 +37,25 @@ function generate() {
     console.log("SEED", seed);
 }
 
+function col_generate() {
+    colseed = 'colseed' in params ? parseInt(params.colseed) : int(Math.random() * 99999999);
+    console.log("COLSEED", colseed);
+}
+
 function reset() {
+    console.log("?seed="+seed+"&colseed="+colseed);
+
+    randomSeed(colseed);
+    noiseSeed(colseed);
+
+    csp = new ColorSpace({num:7});
+    csp.makeBackAndLine(0.7);
+    csp.run(300);
+
+    back = csp.getVal(0);
+    console.log(back)
+    front = csp.getList(1);
+
     randomSeed(seed);
     noiseSeed(seed);
 
@@ -301,7 +320,7 @@ class Dot extends Tweenable{
         this.read(this, 'rot', c.rot, random(-PI, PI));
         this.read(this, 'damp', c.damp, 0.85);
         this.read(this, 'limit', c.limit, 8);
-        this.read(this, 'col', c.col, front);
+        this.read(this, 'col', c.col, front[0]);
         this.read(this, 'alpha', c.alpha, 255);
         this.read(this, 'life', c.life, 0);
 
