@@ -75,9 +75,11 @@ function reset() {
     let init = config.init();
     if(! Array.isArray(init)) init = [init];
 
-    for(let f of init){
-        for(let i=0; i<f.num; i++){
-            let neo = new Dot(f);
+    for(let cf of init){
+        cf.prev = null;
+        for(let i=0; i<cf.num; i++){
+            let neo = new Dot(cf);
+            cf.prev = neo;
         }
     }
 
@@ -323,6 +325,7 @@ class Dot extends Tweenable{
         dotCount ++;
         this.gen = random(1);
         this.dad = c.dad || null;
+        this.prev = c.prev || null;
         this.close = [];
 
         this.read(this, 'mass', c.mass, 1);
@@ -364,6 +367,7 @@ class Dot extends Tweenable{
         }
 
         this.mT = -1;
+        // console.log(this.ix, this.prev);
     }
 
     addForce(f) {
@@ -371,16 +375,22 @@ class Dot extends Tweenable{
 
         for(let p in ff) {
             if(typeof ff[p] == "object" && ! ('pos' in ff[p]) ) this.read(ff, p, ff[p], 0);
-            if('ref' in ff) {
-                if(ff.ref == "dad") ff.ref = this.dad;
-                else if(ff.ref == "prev") ff.ref = dots[this.ix-1]; 
-            }
+            
         }
+
+        if('ref' in ff) {
+            if(ff.ref == "dad") ff.ref = this.dad;
+            else if(ff.ref == "prev") ff.ref = this.prev; 
+
+            if(ff.ref == null) return;
+            // console.log(this.ix, ff)
+        }
+
         this.forces.push(ff);
     }
 
     addChild(_ch) {
-        let ch = {num:1, every:1, since:0, until:999999, ..._ch};
+        let ch = {num:1, every:1, since:0, until:999999, dad:this, prev:this, ..._ch};
         // console.log(ch)
 
         this.children.push(ch);
@@ -417,9 +427,11 @@ class Dot extends Tweenable{
 
         for(let ch of this.children){
             if(this.mT > ch.since && this.mT < ch.until && this.mT % ch.every == 0){
+                // ch.prev = this;
+                // ch.dad = this;
                 for(let n=0; n<ch.num; n++){
-                    ch.dad = this;
                     let neo = new Dot(ch)
+                    ch.prev = neo;
                 }
             }
         }
@@ -465,7 +477,7 @@ class Dot extends Tweenable{
             if(f.bi) f.ref.vel.sub(md[0], md[1])
 
         } else if(f.ty == "spring"){ // f, ln, bi
-            dif.set(f.ref.pos.x-this.pos.x, f.ref.pos.y-this.pos.y);
+            let dif = createVector(f.ref.pos.x-this.pos.x, f.ref.pos.y-this.pos.y);
             dif.setMag( (dif.mag()-f.ln)*f.f*this.mass );
             this.vel.add(dif);
             if(f.bi) f.ref.vel.sub(dif);
@@ -587,7 +599,7 @@ function keyTyped() {
         // reset();
     }  else if (key === 's') {
         // saveCanvas(canvas, "PT_"+seed+"_"+t, "jpg");
-        saveCanvas(canvas, getTimestamp()+'_'+config.name+'_s'+String(seed)+'_cs'+String(colseed))
+        saveCanvas(canvas, getTimestamp()+'_'+config.name+'_s'+String(seed)+'_cs'+String(colseed), "jpg")
         console.log("saveCanvas");
     } else if (key === 'v') {
         startVid = true;

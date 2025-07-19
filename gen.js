@@ -60,18 +60,19 @@ cf = {
             ],
             children:[
                 {
-                    every: 4,
+                    every: 24,
                     pos: {a:{src:'rnd', mn:-PI, mx:PI}, r:{src:'rnd', mx:skw*0.15}},
                     life: 800,
                     rad: {src:'t', cv:'cos', pw:0.3, mn:0, mx:32},
                     size: 1.5,
                     col: {src:'t', cs:[front[0], front[front.length-1]]},
-                    damp: 0.7,
+                    damp: 0.9,
                     wrap: false,
                     forces:[
                         {ty:'grid'},
                         // {ty:'noisewind', f:0.3, vv:0, iv:0.03, tv:0.003, cn:1.2}
-                        {ty:'pull', f:-0.001, ref:'dad'}
+                        {ty:'pull', f:-0.0005, ref:'dad'},
+                        {ty:'spring', len:32, f:0.01, ref:'prev', bi:true}
 
                     ]
                 }
