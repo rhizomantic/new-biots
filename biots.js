@@ -9,6 +9,7 @@ var back = [32,32,32];
 var front = [[255,255,255]];
 const gap = 60;
 const skw = 1080, skh = 1080;
+const stepsPerFrame = 3;
 
 var vid, startVid, stopVid, recording;
 const vid_len = 1200;
@@ -102,45 +103,10 @@ function draw() {
     }
 
     if(go || step){
-        grid = [];
-        flashes = [];
+        // canvas.background(back[0], back[1], back[2]);
 
-        canvas.background(back[0], back[1], back[2]);
-
-        for(let d of dots) d.update();
-
-        let a, b, d, rr, dif = createVector();
-        for(let c=0; c<cols; c++){
-            if(grid[c] === undefined) continue;
-            for(let r=0; r<rows; r++){
-                if(grid[c][r] === undefined) continue;
-                let ns = [...grid[c][r]]; // this one
-                if(c < cols && grid[c+1] !== undefined && grid[c+1][r] !== undefined) ns.push(...grid[c+1][r]); // right
-                if(r < rows && grid[c][r+1] !== undefined) ns.push(...grid[c][r+1]); //bottom
-                if(c < cols && r < rows && grid[c+1] !== undefined && grid[c+1][r+1] !== undefined) ns.push(...grid[c+1][r+1]); // bottom right
-                if(c > 0 && r < rows && grid[c-1] !== undefined && grid[c-1][r+1] !== undefined) ns.push(...grid[c-1][r+1]); // bottom left
-
-                for(let i=0; i<grid[c][r].length; i++){
-                    a = grid[c][r][i];
-                    a.close = [];
-                    for(let j=i+1; j<ns.length; j++){
-                        b = ns[j];
-                        // if(a == b) continue;
-                        dif.set(a.pos.x-b.pos.x, a.pos.y-b.pos.y);
-                        d = dif.mag();
-                        // console.log(t, a.ix, b.ix, d)
-                        a.close.push([b, dif.copy(), d]);
-                        rr = a.rad + b.rad;
-                        if(d < rr) {
-                            dif.setMag(lerp(5, 0, d/(rr)));
-                            a.vel.add(dif);
-                            b.vel.sub(dif);           
-                        }
-                    }
-                    // console.log(a.ix, a.close)
-                }
-
-            }
+        for(let i=0; i<stepsPerFrame; i++){
+            makeStep();
         }
         
         // if(trace != '') {
@@ -154,7 +120,7 @@ function draw() {
         if(recording) {
              vid.capture(document.getElementById('defaultCanvas0'));
 
-            if(stopVid || t == vid_len) {
+            if(stopVid || t >= vid_len) {
                 vid.stop();
                 vid.save();
                 vid = null;
@@ -168,6 +134,51 @@ function draw() {
         if(t%180 == 1) console.log(t, frameRate());
         step = false;
     }
+}
+
+function makeStep(){
+    grid = [];
+    flashes = [];
+
+    canvas.background(back[0], back[1], back[2]);
+
+    for(let d of dots) d.update();
+
+    let a, b, d, rr, dif = createVector();
+    for(let c=0; c<cols; c++){
+        if(grid[c] === undefined) continue;
+        for(let r=0; r<rows; r++){
+            if(grid[c][r] === undefined) continue;
+            let ns = [...grid[c][r]]; // this one
+            if(c < cols && grid[c+1] !== undefined && grid[c+1][r] !== undefined) ns.push(...grid[c+1][r]); // right
+            if(r < rows && grid[c][r+1] !== undefined) ns.push(...grid[c][r+1]); //bottom
+            if(c < cols && r < rows && grid[c+1] !== undefined && grid[c+1][r+1] !== undefined) ns.push(...grid[c+1][r+1]); // bottom right
+            if(c > 0 && r < rows && grid[c-1] !== undefined && grid[c-1][r+1] !== undefined) ns.push(...grid[c-1][r+1]); // bottom left
+
+            for(let i=0; i<grid[c][r].length; i++){
+                a = grid[c][r][i];
+                a.close = [];
+                for(let j=i+1; j<ns.length; j++){
+                    b = ns[j];
+                    // if(a == b) continue;
+                    dif.set(a.pos.x-b.pos.x, a.pos.y-b.pos.y);
+                    d = dif.mag();
+                    // console.log(t, a.ix, b.ix, d)
+                    a.close.push([b, dif.copy(), d]);
+                    rr = a.rad + b.rad;
+                    if(d < rr) {
+                        dif.setMag(lerp(5, 0, d/(rr)));
+                        a.vel.add(dif);
+                        b.vel.sub(dif);           
+                    }
+                }
+                // console.log(a.ix, a.close)
+            }
+
+        }
+    }
+
+    // t++;
 }
 
 /******* BASE CLASS FOR TWEENABLE OBJECTS *********/
