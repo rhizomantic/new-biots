@@ -71,7 +71,7 @@ function reset() {
     go = true;
     capture = false;
 
-    let config = configs[configs.length-1];
+    config = configs[configs.length-1];
     let init = config.init();
     if(! Array.isArray(init)) init = [init];
 
@@ -371,6 +371,10 @@ class Dot extends Tweenable{
 
         for(let p in ff) {
             if(typeof ff[p] == "object" && ! ('pos' in ff[p]) ) this.read(ff, p, ff[p], 0);
+            if('ref' in ff) {
+                if(ff.ref == "dad") ff.ref = this.dad;
+                else if(ff.ref == "prev") ff.ref = dots[this.ix-1]; 
+            }
         }
         this.forces.push(ff);
     }
@@ -582,7 +586,8 @@ function keyTyped() {
         // sx --; if(sx < 0) sx += scripts.length;
         // reset();
     }  else if (key === 's') {
-        saveCanvas(canvas, "PT_"+seed+"_"+t, "jpg");
+        // saveCanvas(canvas, "PT_"+seed+"_"+t, "jpg");
+        saveCanvas(canvas, getTimestamp()+'_'+config.name+'_s'+String(seed)+'_cs'+String(colseed))
         console.log("saveCanvas");
     } else if (key === 'v') {
         startVid = true;
