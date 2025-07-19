@@ -87,7 +87,7 @@ function reset() {
         vid = new CCapture({
             format: 'webm',
             framerate:60,
-            name: getTimestamp()+'_'+config.name+'_'+String(seed),
+            name: getTimestamp()+'_'+config.name+'_s'+String(seed)+'_cs'+String(colseed),
             verbose: false,
             display: true,
             quality: 82,
@@ -371,7 +371,7 @@ class Dot extends Tweenable{
     }
 
     addForce(f) {
-        let ff = {ty:'spring', f:0.01, n:1, r:0, a:0, br:0, ba:0, ln:100, bi:false, rl:false, ...f}
+        let ff = {ty:'spring', f:0.01, n:1, r:0, a:0, br:0, ba:0, len:100, bi:false, rl:false, ...f}
 
         for(let p in ff) {
             if(typeof ff[p] == "object" && ! ('pos' in ff[p]) ) this.read(ff, p, ff[p], 0);
@@ -478,7 +478,7 @@ class Dot extends Tweenable{
 
         } else if(f.ty == "spring"){ // f, ln, bi
             let dif = createVector(f.ref.pos.x-this.pos.x, f.ref.pos.y-this.pos.y);
-            dif.setMag( (dif.mag()-f.ln)*f.f*this.mass );
+            dif.setMag( (dif.mag()-f.len)*f.f*this.mass );
             this.vel.add(dif);
             if(f.bi) f.ref.vel.sub(dif);
 
