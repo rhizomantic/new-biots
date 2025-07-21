@@ -482,6 +482,13 @@ class Dot extends Tweenable{
             this.vel.add(dif);
             if(f.bi) f.ref.vel.sub(dif);
 
+        }if(f.ty == "brownian"){ //f, every
+            if(this.mT % f.every == 0){
+                let a = random(-PI, PI)
+                this.vel.add( f.f*this.mass * cos(a), f.f*this.mass * sin(a) );
+            }
+            
+
         } else if(f.ty == "align"){ // f
             for(let nb of this.close){
                 if(nb[2] <= gap){

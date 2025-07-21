@@ -60,21 +60,22 @@ cf = {
             ],
             children:[
                 {
-                    every: 18,
+                    every: 8,
                     pos: {a:{src:'rnd', mn:-PI, mx:PI}, r:{src:'rnd', mx:skw*0.15}},
                     life: 800,
                     rad: {src:'t', cv:'cos', pw:0.3, mn:0, mx:24},
                     size: 1.5,
                     col: {src:'t', cs:[front[0], front[front.length-1]]},
-                    damp: 0.6,
+                    damp: 0.9,
                     limit:4,
                     wrap: false,
                     forces:[
                         {ty:'grid'},
                         // {ty:'noisewind', f:0.3, vv:0, iv:0.03, tv:0.003, cn:1.2}
-                        {ty:'pull', f:-0.0012, ref:'dad'},
-                        {ty:'spring', len:32, f:0.02, ref:'prev', bi:false},
-                        // {ty:'spring', len:skw*0.25, f:0.001, ref:'dad'},
+                        // {ty:'pull', f:-0.0012, ref:'dad'},
+                        // {ty:'spring', len:32, f:0.02, ref:'prev', bi:false},
+                        {ty:'spring', len:{src:'t',mn:skw*0.2, mx:skw*0.4}, f:0.001, ref:'dad'},
+                        {ty:'brownian', every:5, f:{src:'t', pw:3, mn:0, mx:3}},
 
                     ]
                 }
