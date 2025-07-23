@@ -268,12 +268,12 @@ class Tweenable {
             o = constrain(v + random(-c.vv, c.vv), 0, 0.999999);
         } else if(c.cv == 'circ') { //
             o = cos(asin(v*2-1));
-        } else if(c.cv == 'sin') { // ph, pw
+        } else if(c.cv == 'sin') { // ph, cy, pw
             // o = pow(sin(v*TWO_PI*c.cy + (c.ph-0.25)*TWO_PI)*0.5+0.5, c.pw);
             o = pow(sin((c.ph+v)*TWO_PI*c.cy)*0.5+0.5, c.pw);
-        } else if(c.cv == 'cos') { // ph, pw
+        } else if(c.cv == 'cos') { // ph, cy, pw
             o = pow(cos((0.5+c.ph+v)*TWO_PI*c.cy)*0.5+0.5, c.pw);
-        } else if(c.cv == 'half-sin') { // ph, pw
+        } else if(c.cv == 'half-sin') { // ph, cy, pw
             v = fract(v*c.cy);
             o = pow(sin(fract(c.ph+v)*PI), c.pw);
         } else if(c.cv == 'peak') { // lc, pw
@@ -304,7 +304,9 @@ class Tweenable {
             v = constrain(v, 0, 0.9999);
             return c.vs[ floor(v*c.vs.length) ];
         } else if(c.cv == 'odd') { // vs - Caso especial: par-impar
-            return c.vs[ this.dix % 2 ];
+            return c.vs[ this.ix % 2 ];
+        } else if(c.cv == 'ix') { // vi - Caso especial: multiplicación por ix
+            return this.ix * c.vi;
         } else if(c.cv == 'div') { // cy - Caso especial: división sin mapeo
             return int(v/c.cy);
         }
@@ -338,18 +340,24 @@ class Dot extends Tweenable{
         this.read(this, 'alpha', c.alpha, 255);
         this.read(this, 'life', c.life, 0);
 
-        let pr = this.dad == null ? {x:0, y:0} : this.dad.pos;
-        let o = {}
+        // let pr = this.dad == null ? {x:0, y:0} : this.dad.pos;
+        // let o = {}
         if('pos' in c){
+            let rf = this.dad;
+            if('ref' in c.pos && c.pos.ref == 'prev') rf = this.prev;
+            let prf = rf == null ? {x:0, y:0} : rf.pos;
+            let o = {}
             if('r' in c.pos) {
                 this.read(o, 'r', c.pos.r, 0);
                 this.read(o, 'a', c.pos.a, 0);
-                this.pos = createVector(pr.x + o.r * cos(o.a), pr.y + o.r * sin(o.a));
+                this.pos = createVector(prf.x + o.r * cos(o.a), prf.y + o.r * sin(o.a));
             } else {
                 this.read(o, 'x', c.pos.x, 0);
                 this.read(o, 'y', c.pos.y, 0);
-                this.pos = createVector(pr.x + o.x, pr.y + o.y);
+                this.pos = createVector(prf.x + o.x, prf.y + o.y);
             } 
+        } else {
+            this.pos = createVector(random(skw), random(skh))
         }
         
         this.vel = createVector();

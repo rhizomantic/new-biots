@@ -60,22 +60,23 @@ cf = {
             ],
             children:[
                 {
-                    every: 8,
-                    pos: {a:{src:'rnd', mn:-PI, mx:PI}, r:{src:'rnd', mx:skw*0.15}},
-                    life: 800,
-                    rad: {src:'t', cv:'cos', pw:0.3, mn:0, mx:24},
+                    every: 16,
+                    // pos: {a:{src:'ix', cv:'ix', vi:0.2}, r: 60},//{src:'rnd', mx:skw*0.15}},
+                    pos: {a:{src:'rnd', mn:-PI, mx:PI}, r: 60, ref:'prev'},
+                    life: 1200,
+                    rad: {src:'t', cv:'cos', pw:0.3, mn:0, mx:20},
                     size: 1.5,
                     col: {src:'t', cs:[front[0], front[front.length-1]]},
-                    damp: 0.9,
+                    damp: 0.6,
                     limit:4,
-                    wrap: false,
+                    wrap: true,
                     forces:[
                         {ty:'grid'},
                         // {ty:'noisewind', f:0.3, vv:0, iv:0.03, tv:0.003, cn:1.2}
                         // {ty:'pull', f:-0.0012, ref:'dad'},
-                        // {ty:'spring', len:32, f:0.02, ref:'prev', bi:false},
-                        {ty:'spring', len:{src:'t',mn:skw*0.2, mx:skw*0.4}, f:0.001, ref:'dad'},
-                        {ty:'brownian', every:5, f:{src:'t', pw:3, mn:0, mx:3}},
+                        {ty:'spring', len:32, f:0.01, ref:'prev', bi:false},
+                        // {ty:'spring', len:{src:'t', cv:'cos', cy:1, mn:skw*0.1, mx:skw*0.5}, f:0.001, ref:'dad'},
+                        // {ty:'brownian', every:5, f:{src:'t', pw:3, mn:0, mx:3}},
 
                     ]
                 }
