@@ -12,7 +12,7 @@ const skw = 1080, skh = 1080;
 const stepsPerFrame = 3;
 
 var vid, startVid, stopVid, recording;
-const vid_len = 1200;
+const vid_len = 800;
 
 function setup() {
     view = createCanvas(int(windowHeight * skw/skh), windowHeight);
@@ -434,7 +434,7 @@ class Dot extends Tweenable{
         // canvas.pop();
 
         for(let ch of this.children){
-            if(this.mT > ch.since && this.mT < ch.until && this.mT % ch.every == 0){
+            if(this.mT >= ch.since && this.mT < ch.until && this.mT % ch.every == 0){
                 // ch.prev = this;
                 // ch.dad = this;
                 for(let n=0; n<ch.num; n++){

@@ -87,3 +87,47 @@ cf = {
     }
 }
 configs.push(cf);
+
+
+cf = {
+    name: 'fizzy',
+
+    init: function() {
+        let lf = 120;
+
+        let out = {
+            num: 1,
+            pos: {x:skw*0.5, y:skh*0.5},
+            life: lf,
+            rad: 24,
+            col: front[0],
+            forces: [],
+            children:[]
+        }
+
+        let levels = 5;
+        let last = out;
+        for(let i=0; i<levels; i++){
+            let ch = {
+                since: lf-1,
+                num: 2,
+                pos: {r:3, a:{src:'rnd', mn:-PI, mx:PI}},
+                life: lf * 1.5,
+                rad: 24 / (i+2),
+                col: front[i+1],
+                damp: 0.9,
+                forces: [
+                    {ty:'grid'},
+                    {ty:'noisewind', f:0.05, vv:0, iv:0.03, tv:0.01, cn:1.2}
+                ],
+                children: []
+            }
+            last.children.push(ch)
+            last = ch;
+            lf *= 1.5;
+        }
+
+        return out;
+    }
+}
+configs.push(cf);
