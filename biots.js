@@ -216,8 +216,8 @@ class Tweenable {
         }
         if(s.src.startsWith('d-')) {
             let p = s.src.substring(2);
-            if(prop == "col") obj["col"] = gradient(s.cs,  this.calcCrv(s, this.group[p]))
-            else obj[prop] = this.calcCrv(s, this.group[p]);
+            if(prop == "col") obj["col"] = gradient(s.cs,  this.calcCrv(s, this.dad[p]))
+            else obj[prop] = this.calcCrv(s, this.dad[p]);
             return;
         }
         if(prop == "col") obj["col"] = gradient(s.cs,  this.calcCrv(s, this[s.src]))
@@ -388,12 +388,26 @@ class Dot extends Tweenable{
         }
 
         if('ref' in ff) {
-            if(ff.ref == "dad") ff.o = this.dad == null ? 'none' : this.dad;
-            else if(ff.ref == "prev") ff.o = this.prev == null ? 'none' :  this.prev;
-            else f.o = null;
+            // if(ff.ref == "dad") ff.o = this.dad == null ? 'none' : this.dad;
+            // else if(ff.ref == "prev") ff.o = this.prev == null ? 'none' :  this.prev;
+            // else f.o = null;
 
-            if(ff.o == 'none') return;
-            // console.log(this.ix, ff)
+            // if(ff.o == 'none') return;
+            if(ff.ref instanceof Dot) ff.o = ff.ref;
+            else if(ff.ref == "dad") ff.o = this.dad;
+            else if(ff.ref == "prev") ff.o = this.prev;
+            else {
+                let rfs = [...dots].filter((x) => x.name == ff.ref);
+
+                if(rfs.length == 0) return;
+                if(rfs.length == 1) f.o = rfs[0];
+                else {
+                    for(let rf of rfs) this.addForce({...f, ref:rf});
+                    return;
+                }
+            }
+
+            if(ff.o == null) return;
         }
 
         this.forces.push(ff);
@@ -458,23 +472,21 @@ class Dot extends Tweenable{
         let md;
         // console.log(this.ix, f);
 
-        if(f.o == null && 'ref' in f && typeof f.ref === 'string'){
-            let rfs = [...dots].filter((x) => x.name == f.ref);
-            // console.log(this.ix, rfs.length)
-            if(rfs.length == 0) return;
-            if(rfs.length == 1){
-                f.o = rfs[0];
-            } else {
-                for(let rf of rfs){
-                    // f.o = rf;
-                    this.applyForce({...f, o:rf});
-                }
-                // console.log(this.ix, rfs.length)
-                return;
-            }
-            
-            
-        }
+        // if(f.o == null && 'ref' in f && typeof f.ref === 'string'){
+        //     let rfs = [...dots].filter((x) => x.name == f.ref);
+        //     // console.log(this.ix, rfs.length)
+        //     if(rfs.length == 0) return;
+        //     if(rfs.length == 1){
+        //         f.o = rfs[0];
+        //     } else {
+        //         for(let rf of rfs){
+        //             // f.o = rf;
+        //             this.applyForce({...f, o:rf});
+        //         }
+        //         // console.log(this.ix, rfs.length)
+        //         return;
+        //     }
+        // }
 
         if(f.ty == "wind"){ //f, a
             this.vel.add( f.f*this.mass * cos(f.a), f.f*this.mass * sin(f.a) );
@@ -486,7 +498,7 @@ class Dot extends Tweenable{
             );
 
         } else if(f.ty == 'noisecurl'){ // f, vv, iv, tv, am
-            f.a += (noise(f.vv, this.ix*f.iv, t*f.tv,)*2 - 1) * f.am;
+            f.a += (noise(f.vv, this.ix*f.iv, this.mT*f.tv,)*2 - 1) * f.am;
             this.vel.add(f.f * cos(f.a), f.f * sin(f.a) );
 
         } else if(f.ty == 'noisepull'){ // f, cn, vv, iv, tv
