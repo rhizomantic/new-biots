@@ -187,8 +187,8 @@ cf = {
 
     init: function() {
         let out = {
-            num: 5,
-            // pos: {x:{src:'rnd', mx:skw}, y:{src:'rnd', mx:skh}},
+            num: 6,
+            pos: {x:{src:'rnd', mn:skw*0.3, mx:skw*0.7}, y:{src:'rnd', mn:skh*0.3, mx:skh*0.7}},
             // pos: {x:skw*0.5, y:skh*0.5},
             life: 0,
             rad: 2,
@@ -198,7 +198,7 @@ cf = {
             ],
             children:[
                 {
-                    every: 16,
+                    every: 24,
                     pos: {x:0, y:0},//{src:'rnd', mx:skw*0.15}},
                     life: 900,
                     rad: {src:'t', cv:'cos', pw:0.3, mn:0, mx:16},
@@ -208,8 +208,8 @@ cf = {
                     limit:4,
                     wrap: true,
                     forces:[
-                        {ty:'grid'},
-                        {ty:'noisecurl', f:0.8, a:-PI/2, vv:{src:'d-gen', mx:8}, iv:0.00, tv:0.02, am:0.1},
+                        // {ty:'grid'},
+                        {ty:'noisecurl', f:0.8, a:-PI/2, vv:{src:'d-gen', mx:8}, iv:0.001, tv:0.02, am:0.1},
 
                     ]
                 }
