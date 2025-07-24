@@ -118,7 +118,8 @@ cf = {
                 damp: 0.9,
                 forces: [
                     {ty:'grid'},
-                    {ty:'noisewind', f:0.05, vv:0, iv:0.03, tv:0.01, cn:1.2}
+                    // {ty:'noisewind', f:0.05, vv:0, iv:0.03, tv:0.01, cn:1.2},
+                    {ty:'noisecurl', f:0.2, vv:0, iv:0.03, tv:0.05, am:0.1},
                 ],
                 children: []
             }
@@ -128,6 +129,54 @@ cf = {
         }
 
         return out;
+    }
+}
+configs.push(cf);
+
+
+cf = {
+    name: 'repulsores',
+
+    init: function() {
+        let reps = {
+            name: 'reps',
+            num: 8,
+            life: 0,
+            rad: 4,
+            col: [192, 0, 0],
+        }
+
+        let out = {
+            num: 1,
+            pos: {x:skw*0.5, y:skh*0.5},
+            life: 0,
+            rad: 2,
+            col: [0, 0, 192],
+            forces: [
+            ],
+            children:[
+                {
+                    every: 6,
+                    pos: {a:{src:'rnd', mn:-PI, mx:PI}, r:{src:'rnd', mx:skw*0.5}},
+                    life: 1200,
+                    rad: {src:'t', cv:'cos', pw:0.3, mn:0, mx:20},
+                    size: 1.5,
+                    col: {src:'t', cs:[front[0], front[front.length-1]]},
+                    damp: 0.6,
+                    limit:4,
+                    wrap: true,
+                    forces:[
+                        {ty:'grid'},
+                        // {ty:'noisewind', f:0.3, vv:0, iv:0.03, tv:0.003, cn:1.2}
+                        // {ty:'pull', f:-0.01, ref:'reps'},
+                        {ty:'reach', len:200, f:-1, ref:'reps'},
+
+                    ]
+                }
+            ]
+        }
+
+        return [reps, out];
     }
 }
 configs.push(cf);

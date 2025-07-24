@@ -328,6 +328,7 @@ class Dot extends Tweenable{
         this.gen = random(1);
         this.dad = c.dad || null;
         this.prev = c.prev || null;
+        this.name = c.name || '';
         this.close = [];
 
         this.read(this, 'mass', c.mass, 1);
@@ -382,15 +383,16 @@ class Dot extends Tweenable{
         let ff = {ty:'spring', f:0.01, n:1, r:0, a:0, br:0, ba:0, len:100, bi:false, rl:false, ...f}
 
         for(let p in ff) {
-            if(typeof ff[p] == "object" && ! ('pos' in ff[p]) ) this.read(ff, p, ff[p], 0);
+            if(typeof ff[p] == "object" && ff[p] != null && ! ('pos' in ff[p]) ) this.read(ff, p, ff[p], 0);
             
         }
 
         if('ref' in ff) {
-            if(ff.ref == "dad") ff.ref = this.dad;
-            else if(ff.ref == "prev") ff.ref = this.prev; 
+            if(ff.ref == "dad") ff.o = this.dad == null ? 'none' : this.dad;
+            else if(ff.ref == "prev") ff.o = this.prev == null ? 'none' :  this.prev;
+            else f.o = null;
 
-            if(ff.ref == null) return;
+            if(ff.o == 'none') return;
             // console.log(this.ix, ff)
         }
 
@@ -454,6 +456,25 @@ class Dot extends Tweenable{
 
     applyForce(f) {
         let md;
+        // console.log(this.ix, f);
+
+        if(f.o == null && 'ref' in f && typeof f.ref === 'string'){
+            let rfs = [...dots].filter((x) => x.name == f.ref);
+            // console.log(this.ix, rfs.length)
+            if(rfs.length == 0) return;
+            if(rfs.length == 1){
+                f.o = rfs[0];
+            } else {
+                for(let rf of rfs){
+                    // f.o = rf;
+                    this.applyForce({...f, o:rf});
+                }
+                // console.log(this.ix, rfs.length)
+                return;
+            }
+            
+            
+        }
 
         if(f.ty == "wind"){ //f, a
             this.vel.add( f.f*this.mass * cos(f.a), f.f*this.mass * sin(f.a) );
@@ -463,6 +484,10 @@ class Dot extends Tweenable{
                 lerp(-f.f, f.f, noise(0+f.vv, this.ix*f.iv, t*f.tv)),
                 lerp(-f.f, f.f, noise(8+f.vv, this.ix*f.iv, t*f.tv))
             );
+
+        } else if(f.ty == 'noisecurl'){ // f, vv, iv, tv, am
+            f.a += (noise(f.vv, this.ix*f.iv, t*f.tv,)*2 - 1) * f.am;
+            this.vel.add(f.f * cos(f.a), f.f * sin(f.a) );
 
         } else if(f.ty == 'noisepull'){ // f, cn, vv, iv, tv
             let o = [
@@ -478,19 +503,28 @@ class Dot extends Tweenable{
             
         } else if(f.ty == "pull"){ // f
             md = [
-                (f.ref.pos.x - this.pos.x) * f.f * this.mass,
-                (f.ref.pos.y - this.pos.y) * f.f * this.mass
+                (f.o.pos.x - this.pos.x) * f.f * this.mass,
+                (f.o.pos.y - this.pos.y) * f.f * this.mass
             ]
             this.vel.add(md[0], md[1]);
-            if(f.bi) f.ref.vel.sub(md[0], md[1])
+            if(f.bi) f.o.vel.sub(md[0], md[1])
 
-        } else if(f.ty == "spring"){ // f, ln, bi
-            let dif = createVector(f.ref.pos.x-this.pos.x, f.ref.pos.y-this.pos.y);
+        } else if(f.ty == "spring"){ // f, len, bi
+            let dif = createVector(f.o.pos.x-this.pos.x, f.o.pos.y-this.pos.y);
             dif.setMag( (dif.mag()-f.len)*f.f*this.mass );
             this.vel.add(dif);
-            if(f.bi) f.ref.vel.sub(dif);
+            if(f.bi) f.o.vel.sub(dif);
 
-        }if(f.ty == "brownian"){ //f, every
+        } else if(f.ty == "reach"){ // f, len, bi
+            let dif = createVector(f.o.pos.x-this.pos.x, f.o.pos.y-this.pos.y);
+            let d = dif.mag();
+            if(d < f.len){
+                dif.setMag(f.f*this.mass * (1-d/f.len))
+                this.vel.add(dif);
+                if(f.bi) f.o.vel.sub(dif);
+            } 
+
+        } if(f.ty == "brownian"){ //f, every
             if(this.mT % f.every == 0){
                 let a = random(-PI, PI)
                 this.vel.add( f.f*this.mass * cos(a), f.f*this.mass * sin(a) );
